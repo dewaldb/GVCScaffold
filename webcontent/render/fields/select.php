@@ -1,0 +1,29 @@
+<?php 
+$controls = Template::load(
+    "webcontent/render/fields/select_inline.php",
+    array(
+        "form_name"=>$form_name,
+        "id"=>$id,
+        "label"=>null,
+        "value"=>$value,
+        "items"=>$items,
+        "invalid"=>$invalid,
+        "required"=>$required,
+        "type"=>$type,
+        "class"=>$class,
+        "readonly"=>$readonly,
+        "onchange"=>$onchange
+    )
+);
+print Template::load(
+    "webcontent/render/fields/bootstrap.php",
+    array(
+        "form_name"=>$form_name,
+        "id"=>$id,
+        "label"=>$label,
+        "invalid"=>$invalid,
+        "required"=>$required,
+        "controls"=>$controls
+    )
+);
+?>

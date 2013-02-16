@@ -4,8 +4,6 @@
 
         <?php print Render::inputText($form_name, "username", "username", $form_state["username"], (isset($form_state["invalid"]["username"]) ? $form_state["invalid"]["username"] : ""), 1, "text", "", true); ?>
         <?php print Render::inputText($form_name, "email", "email", $form_state["email"], (isset($form_state["invalid"]["email"]) ? $form_state["invalid"]["email"] : ""), 1, "text", "", true); ?>
-        <?php print Render::inputText($form_name, "password", "password", $form_state["password"], (isset($form_state["invalid"]["password"]) ? $form_state["invalid"]["password"] : ""), 1, "text", "", true); ?>
-        <?php print Render::inputText($form_name, "salt", "salt", $form_state["salt"], (isset($form_state["invalid"]["salt"]) ? $form_state["invalid"]["salt"] : ""), 1, "text", "", true); ?>
         <?php print Render::inputDatepicker($form_name, "createDate", "createDate", $form_state["createDate"], (isset($form_state["invalid"]["createDate"]) ? $form_state["invalid"]["createDate"] : ""), 1, "", true); ?>
 
     </form>

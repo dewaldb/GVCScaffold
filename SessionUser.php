@@ -16,6 +16,8 @@ class SessionUser {
         session_name($session_name); // Sets the session name to the one set above.
         session_start(); // Start the php session
         session_regenerate_id(true); // regenerated the session, delete the old one.
+        
+        SessionUser::isValidUser();
     }
     
     static function login($email, $password) {
@@ -35,6 +37,7 @@ class SessionUser {
                 if(SessionUser::checkbrute($user_id) == true) {
                     // Account is locked
                     // Send an email to user saying their account is locked
+                    die("LOCKED");
                     return false;
                 } else {
                     if($db_password == $password) { // Check if the password in the database matches the password the user submitted.

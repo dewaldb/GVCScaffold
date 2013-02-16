@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule ^([a-z0-9_\-]+)$ index.php?q1=$1 [QSA,NC]
+RewriteRule ^([a-z0-9_\-]+)/([a-z0-9_\-]+)$ index.php?q1=$1&q2=$2 [QSA,NC]
+RewriteRule ^([a-z0-9_\-]+)/([a-z0-9_\-]+)/([a-z0-9_\-]+)$ index.php?q1=$1&q2=$2&q3=$3 [QSA,NC]
+RewriteRule ^([a-z0-9_\-]+)/([a-z0-9_\-]+)/([a-z0-9_\-]+)/([a-z0-9_\-]+)$ index.php?q1=$1&q2=$2&q3=$3&q4=$4 [QSA,NC]

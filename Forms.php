@@ -21,7 +21,7 @@ class Forms {
                 Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);
             } else if(stripos($value["Type"],"Password")===0) {
                 // password
-                Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);
+                Forms::$form_state[$form_name][$key] = "";
             } else if(stripos($value["Type"],"text")!==false || stripos($value["Type"],"Textarea")===0) {
                 // textarea
                 Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);
@@ -73,7 +73,9 @@ class Forms {
                     }
                 }
             }
-        } else if(!isset($_POST["{$form_name}_{$field}"]) && (strcasecmp($value["Type"],"tinyint(1)")===0 || strcasecmp($value['Type'],'checkbox')===0 || strcasecmp($value['Type'],'SELECT_MULTI')===0 || strcasecmp($value['Type'],'SELECT_MULTI_ADD')===0)) {
+        } else if(stripos($value["Null"],"no")!==false) {
+            Forms::$form_state[$form_name][$field] = $value["Default"];
+        } else if(!isset($_POST["{$form_name}_{$field}"]) && (stripos($value["Type"],"boolean")!==false || stripos($value["Type"],"tinyint(1)")!==false || stripos($value['Type'],'checkbox')!==false || stripos($value['Type'],'SELECT_MULTI')!==false || stripos($value['Type'],'SELECT_MULTI_ADD')!==false)) {
             // some input types are not posted if they have no set value, like a boolean checkbox, if so we need to set it to an empty array here so it can be saved properly
             Forms::$form_state[$form_name][$field] = array("");
         }

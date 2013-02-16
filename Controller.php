@@ -1,6 +1,7 @@
 <?php
 class Controller {
-    private $route_name;
+    protected $route_name;
+    protected $permissions;
     
     function __construct($route_name) {
         $this->route_name = $route_name;
@@ -17,7 +18,7 @@ class Controller {
     function run($params) {
         $methods = get_class_methods(get_class($this));
         
-        if(!isset($params[1])) {
+        if(!isset($params[1]) || (isset($params[1]) && is_numeric($params[1]))) {
             if(array_search("view", $methods)!==false) {
                 return call_user_func(array($this, "view"), $params);
             }

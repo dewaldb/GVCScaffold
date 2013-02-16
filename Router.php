@@ -14,7 +14,7 @@ class Router {
         $this->params = array();
         $this->default_route = "";
         $this->not_found_route = "not_found";
-        $this->access_denied_route = "";
+        $this->access_denied_route = "access_denied";
         $this->check_access_function = "";
         $this->web_content_folder = "";
     }
@@ -23,7 +23,6 @@ class Router {
         if(isset($_GET["q1"])) {
             $this->default_route = $_GET["q1"];
         }
-        
         
         $this->params = array(
             (isset($_GET["q1"]) ? $_GET["q1"] : null),

@@ -2,7 +2,11 @@
 class UserController extends Controller {
     private $generic_name;
     private $table_name;
-    private $permissions;
+    
+    static $roles = array(
+        "Authenticated"=>array("authenticated",false),
+        "Admin"=>array("admin",true),
+    );
     
     function __construct($route_name,$arguments) {
         parent::__construct($route_name);
@@ -10,8 +14,7 @@ class UserController extends Controller {
         $this->generic_name = "user";
         $this->table_name = "users";
         
-        $this->permisions = Permissions::get("users");
-        print_r($this->permissions);
+        $this->permissions = Permissions::get("users");
     }
     /*
     function run($params) {
@@ -69,6 +72,8 @@ class UserController extends Controller {
             if(!count($form_state["invalid"])) {
                 if(SessionUser::login($form_state["email"], $form_state["password"], DS::get())) {
                     Router::redirect("home");
+                } else {
+                    
                 }
             }
         }
@@ -95,11 +100,6 @@ class UserController extends Controller {
         $form_name = "register";
         $generic_name = $this->generic_name;
         
-        $roles = array(
-            "Authenticated"=>array("authenticated",false),
-            "Admin"=>array("admin",true),
-        );
-        
         $fields = DS::table_info($this->table_name);
         
         // Items array("" - the Label
@@ -110,9 +110,10 @@ class UserController extends Controller {
         //  )
         $fields["password"]["Type"] = "password";
         $fields["roles"]["Type"] = "checkbox";
-        $fields["roles"]["Items"] = $roles;
+        $fields["roles"]["Items"] = UserController::$roles;
+        $fields["roles"]["Permissions"] = $this->permissions["fields"]["roles"];
         $fields["active"]["Items"] = array(""=>array("1",true));
-        $fields["active"]["Permissions"] = array("view"=>array("admin"),"edit"=>array("admin"));
+        $fields["active"]["Permissions"] = $this->permissions["fields"]["active"];
         
         unset($fields["salt"]);
         unset($fields["createDate"]);
@@ -122,10 +123,16 @@ class UserController extends Controller {
         $updated_generic = Forms::validate($form_name, $fields);
         
         if($updated_generic) {
+            $updated_generic["active"] = 1;
+            
             SessionUser::registerUser($updated_generic);
             //DS::insert($table_name, $updated_generic);
             
-            Router::redirect(""); // redirect to home page
+            if($params[1]=="register") {
+                Router::redirect(""); // redirect to home page
+            } else {
+                Router::redirect($this->getRouteName());
+            }
         }
         
         if(isset($_POST["{$form_name}_submit"]) && $_POST["{$form_name}_submit"]=="Cancel") {
@@ -157,6 +164,15 @@ class UserController extends Controller {
             return $this->listing($params);
         }
         
+        if(isset($params[2])) {
+            if($params[2]=="edit") {
+                return $this->edit($params);
+            }
+            if($params[2]=="del") {
+                return $this->delete($params);
+            }
+        }
+        
         $form_name = $this->generic_name;
         
         $fields = DS::table_info($this->table_name);
@@ -168,8 +184,14 @@ class UserController extends Controller {
         //      )
         //  )
         
-        $fields["password"]["Type"] = "password";
-        $fields["createDate"]["Type"] = "date";
+        unset($fields["salt"]);
+        unset($fields["password"]);
+        
+        $fields["roles"]["Type"] = "checkbox";
+        $fields["roles"]["Items"] = UserController::$roles;
+        $fields["roles"]["Permissions"] = $this->permissions["fields"]["roles"];
+        $fields["active"]["Items"] = array(""=>array("1",true));
+        $fields["active"]["Permissions"] = $this->permissions["fields"]["active"];
 
         
         $generic = DS::select($this->table_name, "WHERE id=?i", $params[1]);
@@ -189,6 +211,8 @@ class UserController extends Controller {
     }
     
     function edit($params) {
+        if(isset($this->permissions["pages"]["user"]) && !SessionUser::hasRoles($this->permissions["pages"]["user"]["edit"])) {return true;}
+        
         $GLOBALS["title"] = "Edit ".Render::toTitleCase($this->generic_name);
         $form_name = $this->generic_name;
         $generic_name = $this->generic_name;
@@ -203,8 +227,14 @@ class UserController extends Controller {
         //  )
         
         $fields["password"]["Type"] = "password";
-        $fields["createDate"]["Type"] = "date";
+        $fields["roles"]["Type"] = "checkbox";
+        $fields["roles"]["Items"] = UserController::$roles;
+        $fields["roles"]["Permissions"] = $this->permissions["fields"]["roles"];
+        $fields["active"]["Items"] = array(""=>array("1",true));
+        $fields["active"]["Permissions"] = $this->permissions["fields"]["active"];
 
+        unset($fields["salt"]);
+        unset($fields["createDate"]);
         
         $generic = DS::select($this->table_name, "WHERE id=?i", $params[1]);
         $generic = (count($generic) ? $generic[0] : null); // We only want to use the first result.
@@ -216,6 +246,7 @@ class UserController extends Controller {
             $updated_generic = Forms::validate($form_name, $fields, $generic);
             
             if($updated_generic) {
+                $updated_generic["password"] = hash('sha512', $updated_generic["password"].$generic["salt"]);
                 DS::update($this->table_name, $updated_generic, "WHERE id=?i", $params[1]);
                 
                 Router::redirect($this->getRouteName());
@@ -232,6 +263,8 @@ class UserController extends Controller {
     }
     
     function delete($params) {
+        if(isset($this->permissions["pages"]["user"]) && !SessionUser::hasRoles($this->permissions["pages"]["user"]["del"])) {return true;}
+        
         $GLOBALS["title"] = "Delete ".Render::toTitleCase($this->generic_name);
         $form_name = $this->generic_name;
         $generic_name = $this->generic_name;

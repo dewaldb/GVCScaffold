@@ -8,34 +8,13 @@ class {GenericName}Controller extends Controller {
         
         $this->generic_name = $arguments["generic_name"];
         $this->table_name = $arguments["table_name"];
-    }
-    
-    function run($params) {
-        $this->generic_name = isset($params[0]) ? $params[0] : $this->generic_name;
         
-        if(isset($params[2])) {
-            if($params[2]=="edit") {
-                return $this->edit($params);
-            }
-            if($params[2]=="del") {
-                return $this->delete($params);
-            }
-        }
-        
-        if(isset($params[1])) {
-            if($params[1]=="add") {
-                return $this->add($params);
-            } else {
-                return $this->view($params);
-            }
-        } else {
-            return $this->listing($params);
-        }
-        
-        return false;
+        $this->permissions = Permissions::get($this->generic_name);
     }
     
     function listing($params) {
+        if(isset($this->permissions["content"][$this->generic_name]) && !SessionUser::hasRoles($this->permissions["content"][$this->generic_name]["view"])) {return true;}
+        
         // title is global, see Router->renderView for reason...
         $GLOBALS["title"] = Render::toTitleCase($this->generic_name)." Listing";
         $generic_name = $this->generic_name;
@@ -49,6 +28,21 @@ class {GenericName}Controller extends Controller {
     }
     
     function view($params) {
+        if(!isset($params[1])) {
+            return $this->listing($params);
+        }
+        
+        if(isset($params[2])) {
+            if($params[2]=="edit") {
+                return $this->edit($params);
+            }
+            if($params[2]=="del") {
+                return $this->delete($params);
+            }
+        }
+        
+        if(isset($this->permissions["content"][$this->generic_name]) && !SessionUser::hasRoles($this->permissions["content"][$this->generic_name]["view"])) {return true;}
+        
         $form_name = $this->generic_name;
         
         $fields = DS::table_info($this->table_name);
@@ -78,6 +72,8 @@ class {GenericName}Controller extends Controller {
     }
     
     function add($params) {
+        if(isset($this->permissions["content"][$this->generic_name]) && !SessionUser::hasRoles($this->permissions["content"][$this->generic_name]["add"])) {return true;}
+        
         $GLOBALS["title"] = "Add ".Render::toTitleCase($this->generic_name);
         $form_name = $this->generic_name;
         $generic_name = $this->generic_name;
@@ -113,6 +109,8 @@ class {GenericName}Controller extends Controller {
     }
     
     function edit($params) {
+        if(isset($this->permissions["content"][$this->generic_name]) && !SessionUser::hasRoles($this->permissions["content"][$this->generic_name]["edit"])) {return true;}
+        
         $GLOBALS["title"] = "Edit ".Render::toTitleCase($this->generic_name);
         $form_name = $this->generic_name;
         $generic_name = $this->generic_name;
@@ -145,7 +143,11 @@ class {GenericName}Controller extends Controller {
             return false;
         }
         
-        $this->setRouteName("_generic_edit");
+        if(isset($_POST[$form_name."_submit"]) && $_POST[$form_name."_submit"]=="Cancel") {
+            Router::redirect($this->getRouteName());
+        } else {
+            $this->setRouteName("_generic_edit");
+        }
         
         $form_state = Forms::getState($form_name);
         
@@ -153,6 +155,8 @@ class {GenericName}Controller extends Controller {
     }
     
     function delete($params) {
+        if(isset($this->permissions["content"][$this->generic_name]) && !SessionUser::hasRoles($this->permissions["content"][$this->generic_name]["del"])) {return true;}
+        
         $GLOBALS["title"] = "Delete ".Render::toTitleCase($this->generic_name);
         $form_name = $this->generic_name;
         $generic_name = $this->generic_name;

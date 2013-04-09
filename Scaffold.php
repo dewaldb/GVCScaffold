@@ -7,8 +7,9 @@ class Scaffold {
         $table_info = DS::table_info($table);
         
         // Create the Controller class file
+        $controllerName = str_replace(" ","",Render::toTitleCase($table));
         $template = file_get_contents("controllers/GenericController.tpl");
-        $template = str_replace("{GenericName}", Render::toTitleCase($table), $template);
+        $template = str_replace("{GenericName}", $controllerName, $template);
         $fields = $table_info;
         $fieldSpecificSettings = PHP_EOL;
         foreach($fields as $field=>$data) {
@@ -29,8 +30,8 @@ class Scaffold {
             }
         }
         $template = str_replace("{FieldSpecificSettings}", $fieldSpecificSettings, $template);
-        file_put_contents("controllers/".Render::toTitleCase($table)."Controller.php", $template);
-        chmod("controllers/".Render::toTitleCase($table)."Controller.php", 0777);
+        file_put_contents("controllers/".$controllerName."Controller.php", $template);
+        chmod("controllers/".$controllerName."Controller.php", 0777);
         
         // Add the generic's view template
         $generic = file_get_contents("webcontent/generic.tpl");
@@ -79,7 +80,7 @@ class Scaffold {
         // Add the route for this controller to the index file
         chmod("index.php", 0777);
         $index = file_get_contents("index.php");
-        $router_set_string = '$router->set("'.$table.'","'.Render::toTitleCase($table).'Controller",array("generic_name"=>"'.$table.'","table_name"=>"'.$table.'"),array());'.PHP_EOL;
+        $router_set_string = '$router->set("'.$table.'","'.$controllerName.'Controller",array("generic_name"=>"'.$table.'","table_name"=>"'.$table.'"),array());'.PHP_EOL;
         $index = str_replace($router_set_string, "", $index);
         $index = str_replace('$router->run();',$router_set_string.'$router->run();',$index);
         file_put_contents("index.php", $index);
@@ -106,7 +107,7 @@ class Scaffold {
         
         $start = stripos($index, "/* ADDED ROUTES");
         if($start!==false) {
-            $replace = substr($index, $start-3, (stripos($index, "*/", $start)) - $start +5);
+            $replace = substr($index, $start-2, (stripos($index, "*/", $start)) - $start +5);
             $index = str_replace($replace, "", $index);
         }
         
@@ -117,9 +118,10 @@ class Scaffold {
 }
 
 /* EXAMPLE */
-DS::connect("localhost", "root", "", "test");
+DS::connect("localhost", "root", "", "hindsfeet");
 Scaffold::generate(array(
-    "users"
+    "bus_expense",
+    "bus_income"
 ));
 DS::close();
 

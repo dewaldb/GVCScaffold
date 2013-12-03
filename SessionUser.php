@@ -1,9 +1,10 @@
 <?php
-include_once 'DataSource.php';
+//include_once 'DataSource.php';
 class SessionUser {
     static private $valid = false;
     static private $roles = array();
     static private $checked_login = false;
+    static private $users_exist = null;
 
     static function start($mysqli,$session_id="") {
         $session_name = ($session_id ? $session_id : "sec_session_id"); // Set a custom session name
@@ -17,13 +18,15 @@ class SessionUser {
         session_start(); // Start the php session
         session_regenerate_id(true); // regenerated the session, delete the old one.
         
+        $_SESSION["call"] = (isset($_SESSION["call"]) ? $_SESSION["call"] : 0)+1;
+        
         SessionUser::isValidUser();
     }
     
     static function login($email, $password) {
         // Using prepared Statements means that SQL injection is not possible.
         
-        if ($stmt = DS::get()->prepare("SELECT id, username, password, salt FROM users WHERE email = ? LIMIT 1")) {
+        if ($stmt = DS::get()->prepare("SELECT id, email, password, salt FROM users WHERE email = ? LIMIT 1")) {
             $stmt->bind_param('s', $email); // Bind "$email" to parameter.
             $stmt->execute(); // Execute the prepared query.
             $stmt->store_result();
@@ -143,7 +146,17 @@ class SessionUser {
         $user["salt"] = SessionUser::generatePassword(16);
         $user["password"] = hash('sha512', $user["password"].$user["salt"]); // hash the password with the unique salt.
         
-        DS::insert("users", $user);
+        return DS::insert("users", $user);
+    }
+    
+    static public function saveNewPassword($email,$password) {
+        if(count(DS::select("users", "WHERE email='?s'",$email))) {
+            $user = array();
+            $user["salt"] = SessionUser::generatePassword(16);
+            $user["password"] = hash('sha512', $password.$user["salt"]); // hash the password with the unique salt.
+            return DS::update("users", $user, "WHERE email='?s'",$email);
+        }
+        return false;
     }
     
     static public function generatePassword($length) {
@@ -196,8 +209,16 @@ class SessionUser {
 
         return false;
     }
-
     
+    static public function usersExist() {
+        if(SessionUser::$users_exist===null) {
+            SessionUser::$users_exist = count(DS::select("users"));
+        }
+        return SessionUser::$users_exist;
+    }
+
+
+
     static public function install() {
         $tables = DS::list_tables();
         
@@ -206,7 +227,6 @@ class SessionUser {
             // generate the create table query
             $query = "CREATE TABLE users (";
             $query.= "id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, ";
-            $query.= "username VARCHAR(128) NOT NULL, ";
             $query.= "email VARCHAR(128) NOT NULL, ";
             $query.= "password VARCHAR(512) NOT NULL, ";
             $query.= "salt VARCHAR(16) NOT NULL, ";

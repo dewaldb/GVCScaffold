@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title><?php print $GLOBALS["title"]; ?></title>
+        <title><?php print $GLOBALS["title"]. " - ". $GLOBALS["SiteName"]; ?></title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
@@ -28,7 +28,7 @@
     </head>
     <body>
         <div id="wrapper">
-            <?php $header = Template::load($web_content_folder."/layout/header.php",array("route_name"=>$route_name)); ?>
+            <?php $header = Template::load($web_content_folder."/layout/header.php",compact("params","route_name")); ?>
             <?php if($header) { ?>
                 <div id="header-wrapper">
                     <div class="content">
@@ -38,6 +38,7 @@
             <?php } ?>
             <?php if(isset($body)) { ?>
                 <div id="content-wrapper">
+                    <?php print Message::display(); ?>
                     <div class="content">
                         <?php print $body; ?>
                     </div>

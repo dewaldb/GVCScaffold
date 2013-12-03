@@ -1,5 +1,5 @@
 <?php
-include_once('DataSource.php');
+include_once('datasource/DataSource.php');
 include_once('Render.php');
 class Scaffold {
     // this function does not update the index or generic_admin files' list of routes
@@ -39,7 +39,7 @@ class Scaffold {
         foreach ($table_info as $field=>$value) {
             if(stripos($value["Extra"],"auto_increment")===false) {
                 
-                $required = (stripos($value["Null"],"no")!==false ? true : false);
+                $required = (stripos($value["Null"],"no")!==false ? "true" : "false");
                 
                 if(stripos($value["Type"],"varchar")!==false || stripos($value["Type"],"Textbox")===0) {
                     // text

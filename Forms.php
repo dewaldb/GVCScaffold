@@ -98,7 +98,7 @@ class Forms {
              * TODO: Add a field permission check here.
              */
             
-            if(count($_POST)) {
+            if(count($_POST) && !(isset($_POST["{$form_name}_submit"]) && $_POST["{$form_name}_submit"]=="Load")) {
                 Forms::processFieldPost($form_name, $field, $value); 
                 
                 if(isset($_POST["{$form_name}_submit"]) && 
@@ -138,6 +138,26 @@ class Forms {
                             Forms::$form_state[$form_name][$field] = $fields[$field]['Items'][Forms::$form_state[$form_name][$field]][0];
                         }
                     }
+                    
+                    if(stripos($fields[$field]['Type'],'email')===0) {
+                        if(Forms::$form_state[$form_name][$field] != "" && (
+                                stripos(Forms::$form_state[$form_name][$field],"@") === false || 
+                                stripos(Forms::$form_state[$form_name][$field],".") === false || 
+                                stripos(Forms::$form_state[$form_name][$field],"@")+1 == stripos(Forms::$form_state[$form_name][$field],".") || 
+                                stripos(Forms::$form_state[$form_name][$field],".")+1 == strlen(Forms::$form_state[$form_name][$field]) )) {
+                            Forms::$form_state[$form_name]["invalid"][$field]=array(
+                                'status'=>'error',
+                                'message'=>'Not a valid email address.'
+                            );
+                        } else if(stripos($fields[$field]['Extra'],'account')!==false){
+                            if(count(DS::select("users", "WHERE email='?s'",Forms::$form_state[$form_name][$field]))) {
+                                Forms::$form_state[$form_name]["invalid"][$field]=array(
+                                    'status'=>'error',
+                                    'message'=>'An account with this address already exists.'
+                                );
+                            }
+                        }
+                    }
 
                     if(stripos($fields[$field]['Type'],'PASSWORD')==0 &&
                             isset($_POST[$form_name."_confirm_".str_replace($form_name, "", $field)]) &&
@@ -153,6 +173,27 @@ class Forms {
                         Forms::$form_state[$form_name]["invalid"][$field]=array(
                             'status'=>'error',
                             'message'=>'Not a valid date.'
+                        );
+                    }
+                    
+                    if(stripos($fields[$field]['Type'],'int')===0 && !is_numeric(Forms::$form_state[$form_name][$field])) {
+                        Forms::$form_state[$form_name]["invalid"][$field]=array(
+                            'status'=>'error',
+                            'message'=>'Not a valid integer value.'
+                        );
+                    }
+                    
+                    if(stripos($fields[$field]['Type'],'float')!==false && !is_numeric(Forms::$form_state[$form_name][$field])) {
+                        Forms::$form_state[$form_name]["invalid"][$field]=array(
+                            'status'=>'error',
+                            'message'=>'Not a valid floating point number.'
+                        );
+                    }
+                    
+                    if(stripos($fields[$field]['Type'],'double')!==false && !is_numeric(Forms::$form_state[$form_name][$field])) {
+                        Forms::$form_state[$form_name]["invalid"][$field]=array(
+                            'status'=>'error',
+                            'message'=>'Not a valid double value.'
                         );
                     }
                 }

@@ -84,7 +84,7 @@ class Render {
                 
                 $required = (stripos($value["Null"],"no")!==false ? true : false);
                 
-                if(stripos($value["Type"],"varchar")!==false || stripos($value["Type"],"Textbox")===0) {
+                if(stripos($value["Type"],"varchar")!==false || stripos($value["Type"],"Textbox")===0 || stripos($value["Type"],"email")!==false) {
                     // text
                     $output.= Render::inputText($form_name, $field, $field, $fieldsData[$field], (isset($fieldsData["invalid"][$field]) ? $fieldsData["invalid"][$field] : ""), $required, "text", "", $readonly);
                 } else if(stripos($value["Type"],"Password")===0) {

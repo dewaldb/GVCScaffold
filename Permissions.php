@@ -1,5 +1,4 @@
 <?php
-include_once 'DataSource.php';
 class Permissions {
     static private $permissions;
     
@@ -129,41 +128,58 @@ class Permissions {
         
         $pages = array();
         /*
-        * 
         * user/%
         * user/add
         * user/login
         * user/logout
         * user/register
-        * 
+        * user/forgot
+        * user/listing
         */
 
         // add user page permissions including core admin
         $pages[] = array(
-            'name'=>'user/%',
-            'category'=>'pages',
+            'name'=>'%',
+            'category'=>'user',
+            'subcat'=>'pages',
             'ptype'=>2,
-            'pview'=>'Own');
+            'pview'=>'own');
         $pages[] = array(
-            'name'=>'user/add',
-            'category'=>'pages',
+            'name'=>'add',
+            'category'=>'user',
+            'subcat'=>'pages',
             'ptype'=>2,
-            'pview'=>'Admin');
+            'pview'=>'admin');
         $pages[] = array(
-            'name'=>'user/register',
-            'category'=>'pages',
+            'name'=>'register',
+            'category'=>'user',
+            'subcat'=>'pages',
             'ptype'=>2,
-            'pview'=>'Anonymous');
+            'pview'=>'admin');
         $pages[] = array(
-            'name'=>'user/login',
-            'category'=>'pages',
+            'name'=>'login',
+            'category'=>'user',
+            'subcat'=>'pages',
             'ptype'=>2,
-            'pview'=>'Anonymous');
+            'pview'=>'anonymous');
         $pages[] = array(
-            'name'=>'user/logout',
-            'category'=>'pages',
+            'name'=>'logout',
+            'category'=>'user',
+            'subcat'=>'pages',
             'ptype'=>2,
-            'pview'=>'Authenticated');
+            'pview'=>'authenticated');
+        $pages[] = array(
+            'name'=>'forgot',
+            'category'=>'user',
+            'subcat'=>'pages',
+            'ptype'=>2,
+            'pview'=>'anonymous');
+        $pages[] = array(
+            'name'=>'listing',
+            'category'=>'user',
+            'subcat'=>'pages',
+            'ptype'=>2,
+            'pview'=>'admin');
         
         foreach($pages as $key=>$fieldData) {
             Permissions::set($fieldData);
@@ -173,13 +189,13 @@ class Permissions {
         $content = array();
         $content[] = array(
             'name'=>'user',
-            'category'=>'users',
+            'category'=>'user',
             'subcat'=>'content',
             'ptype'=>0,
-            'pview'=>'Own',
-            'pedit'=>'Own',
-            'padd'=>'Anonymous,Admin',
-            'pdel'=>'Admin');
+            'pview'=>'own',
+            'pedit'=>'own',
+            'padd'=>'anonymous,Admin',
+            'pdel'=>'admin');
         foreach($content as $key=>$fieldData) {
             Permissions::set($fieldData);
         }
@@ -188,39 +204,39 @@ class Permissions {
         $fields = array();
         $fields[] = array(
             'name'=>'active',
-            'category'=>'users',
+            'category'=>'user',
             'subcat'=>'fields',
             'ptype'=>1,
-            'pview'=>'Admin',
-            'pedit'=>'Admin');
+            'pview'=>'admin',
+            'pedit'=>'admin');
         $fields[] = array(
             'name'=>'other',
-            'category'=>'users',
+            'category'=>'user',
             'subcat'=>'fields',
             'ptype'=>1,
-            'pview'=>array('Anonymous','Authenticated'),
-            'pedit'=>array('Anonymous','Authenticated'));
+            'pview'=>array('anonymous','authenticated'),
+            'pedit'=>array('anonymous','authenticated'));
         $fields[] = array(
             'name'=>'password',
-            'category'=>'users',
+            'category'=>'user',
             'subcat'=>'fields',
             'ptype'=>1,
             'pview'=>array(),
-            'pedit'=>array('Anonymous','Authenticated'));
+            'pedit'=>array('anonymous','authenticated'));
         $fields[] = array(
             'name'=>'roles',
-            'category'=>'users',
+            'category'=>'user',
             'subcat'=>'fields',
             'ptype'=>1,
             'pview'=>array(),
-            'pedit'=>'Admin');
+            'pedit'=>'admin');
         foreach($fields as $key=>$fieldData) {
             Permissions::set($fieldData);
         }
 
         // add the default roles
-        Permissions::addRole('Authenticated');
-        Permissions::addRole('Admin');
+        Permissions::addRole('authenticated');
+        Permissions::addRole('admin');
     }
 }
 ?>

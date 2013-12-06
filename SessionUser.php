@@ -26,47 +26,44 @@ class SessionUser {
     static function login($email, $password) {
         // Using prepared Statements means that SQL injection is not possible.
         
-        if ($stmt = DS::get()->prepare("SELECT id, email, password, salt FROM users WHERE email = ? LIMIT 1")) {
-            $stmt->bind_param('s', $email); // Bind "$email" to parameter.
-            $stmt->execute(); // Execute the prepared query.
-            $stmt->store_result();
-            $stmt->bind_result($user_id, $username, $db_password, $salt); // get variables from result.
-            $stmt->fetch();
+        if(count($result = DS::query("SELECT id, email, password, salt FROM users WHERE email = ?s LIMIT 1",$email))) {
+            $user_id = $result[0]["id"];
+            $username = $result[0]["email"];
+            $db_password = $result[0]["password"];
+            $salt = $result[0]["salt"];
             
             $password = hash('sha512', $password.$salt); // hash the password with the unique salt.
             
-            if($stmt->num_rows == 1) { // If the user exists
-                // We check if the account is locked from too many login attempts
-                if(SessionUser::checkbrute($user_id) == true) {
-                    // Account is locked
-                    // Send an email to user saying their account is locked
-                    die("LOCKED");
-                    return false;
-                } else {
-                    if($db_password == $password) { // Check if the password in the database matches the password the user submitted.
-                        // Password is correct!
-                        $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user.
-                        $user_browser = $_SERVER['HTTP_USER_AGENT']; // Get the user-agent string of the user.
-                        
-                        $user_id = preg_replace("/[^0-9]+/", "", $user_id); // XSS protection as we might print this value
-                        $_SESSION['user_id'] = $user_id;
-                        $username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username); // XSS protection as we might print this value
-                        $_SESSION['username'] = $username;
-                        $_SESSION['login_string'] = hash('sha512', $password.$ip_address.$user_browser);
-                        // Login successful.
-                        return true;
-                    } else {
-                        // Password is not correct
-                        // We record this attempt in the database
-                        $now = time();
-                        DS::get()->query("INSERT INTO login_attempts (user_id) VALUES ('$user_id')");
-                        return false;
-                    }
-                }
-            } else {
-                // No user exists. 
+            // We check if the account is locked from too many login attempts
+            if(SessionUser::checkbrute($user_id) == true) {
+                // Account is locked
+                // Send an email to user saying their account is locked
+                die("LOCKED");
                 return false;
+            } else {
+                if($db_password == $password) { // Check if the password in the database matches the password the user submitted.
+                    // Password is correct!
+                    $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user.
+                    $user_browser = $_SERVER['HTTP_USER_AGENT']; // Get the user-agent string of the user.
+
+                    $user_id = preg_replace("/[^0-9]+/", "", $user_id); // XSS protection as we might print this value
+                    $_SESSION['user_id'] = $user_id;
+                    $username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username); // XSS protection as we might print this value
+                    $_SESSION['username'] = $username;
+                    $_SESSION['login_string'] = hash('sha512', $password.$ip_address.$user_browser);
+                    // Login successful.
+                    return true;
+                } else {
+                    // Password is not correct
+                    // We record this attempt in the database
+                    $now = time();
+                    DS::get()->query("INSERT INTO login_attempts (user_id) VALUES ('$user_id')");
+                    return false;
+                }
             }
+        } else {
+            // No user exists. 
+            return false;
         }
     }
     
@@ -91,23 +88,15 @@ class SessionUser {
             $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user. 
             $user_browser = $_SERVER['HTTP_USER_AGENT']; // Get the user-agent string of the user.
             
-            if ($stmt = DS::get()->prepare("SELECT password, roles FROM users WHERE id = ? LIMIT 1")) { 
-                $stmt->bind_param('i', $user_id); // Bind "$user_id" to parameter.
-                $stmt->execute(); // Execute the prepared query.
-                $stmt->store_result();
-
-                if($stmt->num_rows == 1) { // If the user exists
-                    $stmt->bind_result($password,$roles); // get variables from result.
-                    $stmt->fetch();
-                    $login_check = hash('sha512', $password.$ip_address.$user_browser);
-                    if($login_check == $login_string) {
-                        // Logged In!!!!
-                        SessionUser::$roles = explode(",", $roles);
-                        return true;
-                    } else {
-                        // Not logged in
-                        return false;
-                    }
+            if(count($result = DS::query("SELECT password, roles FROM users WHERE id = ?i LIMIT 1",$user_id))) { 
+                $password = $result[0]["password"];
+                $roles = $result[0]["roles"];
+                    
+                $login_check = hash('sha512', $password.$ip_address.$user_browser);
+                if($login_check == $login_string) {
+                    // Logged In!!!!
+                    SessionUser::$roles = explode(",", $roles);
+                    return true;
                 } else {
                     // Not logged in
                     return false;
@@ -128,13 +117,9 @@ class SessionUser {
         // All login attempts are counted from the past 2 hours. 
         $valid_attempts = $now - (2 * 60 * 60); 
         
-        if ($stmt = DS::get()->prepare("SELECT time FROM login_attempts WHERE user_id = ? AND time > '$valid_attempts'")) {
-            $stmt->bind_param('i', $user_id);
-            // Execute the prepared query.
-            $stmt->execute();
-            $stmt->store_result();
+        if ($result = DS::query("SELECT time FROM login_attempts WHERE user_id = ?i AND time > ?s",$user_id,$valid_attempts)) {
             // If there has been more than 5 failed logins
-            if($stmt->num_rows > 5) {
+            if(count($results) > 5) {
                 return true;
             } else {
                 return false;
@@ -238,6 +223,20 @@ class SessionUser {
 
             if(DS::query($query)) {
                 //message_add("The Users table has been created.");
+            }
+        }
+        
+        if(array_search('login_attempts',$tables)===false) {
+            // generate the create table query
+            $query = "CREATE TABLE login_attempts (";
+            $query.= "id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, ";
+            $query.= "user_id INTEGER UNSIGNED NOT NULL, ";
+            $query.= "time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, ";
+            $query.= "PRIMARY KEY (id)";
+            $query.= ") ENGINE = InnoDB;";
+
+            if(DS::query($query)) {
+                //message_add("The Login Attempts table has been created.");
             }
         }
     }

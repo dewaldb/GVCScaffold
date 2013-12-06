@@ -7,7 +7,7 @@ include_once("Message.php");
 include_once("SessionUser.php");
 include_once("Permissions.php");
 include_once("Forms.php");
-include_once("datasource/DataSource.php");
+include_once("datasource/DataSource_PDO.php");
 include_once("Controller.php");
 include_once("Render.php");
 include_once("Router.php");
@@ -15,8 +15,8 @@ include_once("Router.php");
 // place website in development mode
 $_GET["dev"] = true;
 
-$GLOBALS["SiteName"] = "Fund Raiser Backend";
-$GLOBALS["SiteEmail"] = "admin@fundraiser.com";
+$GLOBALS["SiteName"] = "SiteName";
+$GLOBALS["SiteEmail"] = "admin@sitename.com";
 
 Controller::includeAll();
 Forms::setUploadPath("uploads");
@@ -26,7 +26,7 @@ $router->loadAll();
 $router->set("user","UserController",null,array());
 $router->setDefaultRoute("home");
 
-DS::connect("localhost","root","","test");
+DS::connect("localhost","root","root","test");
 
 //Permissions::install();
 Permissions::load();

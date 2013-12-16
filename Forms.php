@@ -150,7 +150,7 @@ class Forms {
                                 'message'=>'Not a valid email address.'
                             );
                         } else if(stripos($fields[$field]['Extra'],'account')!==false){
-                            if(count(DS::select("users", "WHERE email='?s'",Forms::$form_state[$form_name][$field]))) {
+                            if(count(DS::select("users", "WHERE email=?s",Forms::$form_state[$form_name][$field]))) {
                                 Forms::$form_state[$form_name]["invalid"][$field]=array(
                                     'status'=>'error',
                                     'message'=>'An account with this address already exists.'

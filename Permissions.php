@@ -35,7 +35,7 @@ class Permissions {
     }
     
     static public function get($category) {
-        return Permissions::$permissions[$category];
+        return isset(Permissions::$permissions[$category]) ? Permissions::$permissions[$category] : array();
     }
     
     static public function set($permission) {

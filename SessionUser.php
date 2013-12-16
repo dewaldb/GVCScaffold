@@ -6,7 +6,7 @@ class SessionUser {
     static private $checked_login = false;
     static private $users_exist = null;
 
-    static function start($mysqli,$session_id="") {
+    static function start($session_id="") {
         $session_name = ($session_id ? $session_id : "sec_session_id"); // Set a custom session name
         $secure = false; // Set to true if using https.
         $httponly = true; // This stops javascript being able to access the session id.

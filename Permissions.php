@@ -66,12 +66,12 @@ class Permissions {
         }
 
         if($valid) {
-            $perm = DS::select("permissions", "WHERE category='?s' AND name='?s' ". (isset($permission['subcat']) ? "AND subcat='".DS::escape($permission['subcat'])."'" : ""), $permission['category'], $permission['name']);
+            $perm = DS::select("permissions", "WHERE category=?s AND name=?s ". (isset($permission['subcat']) ? "AND subcat=".DS::escape($permission['subcat'])."" : ""), $permission['category'], $permission['name']);
             $perm = (count($perm) ? $perm[0] : null);
             
             if($perm) {
                 // update the existing permission
-                return DS::update("permissions", $permission, "WHERE category='?s' AND name='?s' ". (isset($permission['subcat']) ? "AND subcat='".DS::escape($permission['subcat'])."'" : ""), $permission['category'], $permission['name']);
+                return DS::update("permissions", $permission, "WHERE category=?s AND name=?s ". (isset($permission['subcat']) ? "AND subcat=".DS::escape($permission['subcat'])."" : ""), $permission['category'], $permission['name']);
             } else {
                 // create a new permission
                 return DS::insert("permissions", $permission);
@@ -82,7 +82,7 @@ class Permissions {
     }
     
     static public function addRole($role) {
-        $roles = DS::select('roles',"WHERE role='?s'", $role);
+        $roles = DS::select('roles',"WHERE role=?s", $role);
         if(!count($roles)) {
             DS::insert("roles", array('role'=>$role));
         }

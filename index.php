@@ -28,10 +28,12 @@ $router->setDefaultRoute("home");
 
 DS::connect("localhost","root","root","test");
 
-//Permissions::install();
-Permissions::load();
+if($_GET["dev"]) {
+    Permissions::install();
+    SessionUser::install();
+}
 
-//SessionUser::install();
+Permissions::load();
 SessionUser::start(DS::get());
 
 /* ADDED ROUTES

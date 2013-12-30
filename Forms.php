@@ -25,8 +25,8 @@ class Forms {
             } else if(stripos($value["Type"],"text")!==false || stripos($value["Type"],"Textarea")===0) {
                 // textarea
                 Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);
-            } else if(stripos($value["Type"],"tinyint(1)")===0 || strcasecmp($value["Type"],"checkbox")===0 || strcasecmp($value["Type"],"boolean")===0) {
-                // checkbox
+            } else if(stripos($value["Type"],"tinyint")===0 || stripos($value["Type"],"checkbox")===0 || stripos($value["Type"],"boolean")===0 || stripos($value["Type"],"select")===0) {
+                // checkbox or select
                 if($fieldsData) {
                     Forms::$form_state[$form_name][$key] = (is_array($fieldsData[$key]) ? $fieldsData[$key] : explode(',',$fieldsData[$key]));
                 } else {

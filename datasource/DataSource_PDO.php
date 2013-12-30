@@ -149,15 +149,14 @@ class DS {
     static function list_tables() {
         $query = "SHOW TABLES";
         
+        $tables = array();
         $result = DS::query($query);
         if($result) {
-            $tables = array();
             foreach($result as $row) {
                 $tables[] = $row["Tables_in_".DS::$default_database];
             }
-            return $tables;
         }
-        return null;
+        return $tables;
     }
     
     static function table_info($table) {
@@ -287,8 +286,7 @@ class DS {
                 $value = implode(",",$value);
             }
             
-            $value = DS::escape($value);
-            $valuesString.= "{$value}";
+            $valuesString.= DS::escape($value);
         }
         $query.= " VALUES($valuesString)";
         
@@ -296,11 +294,9 @@ class DS {
         array_splice($args, 0, 2); // remove the first 2 items from the array
         
         $result = DS::query($query,$args);
-        if($result) {
-            $query = "SELECT * FROM {$table} WHERE id=LAST_INSERT_ID()";
-            $result = DS::query($query);
-            if($result) {
-                return $result->fetchAll(PDO::FETCH_ASSOC);
+        if($result!==null) {
+            if($result = DS::query("SELECT * FROM {$table} WHERE id=LAST_INSERT_ID()")) {
+                return $result;
             }
         }
         return null;

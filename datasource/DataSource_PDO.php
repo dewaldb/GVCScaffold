@@ -229,11 +229,7 @@ class DS {
         $args = func_get_args();
         array_splice($args, 0, 2); // remove the first 2 items from the array
         
-        if ($result = DS::query("SELECT * FROM {$table} {$extras} {$limit}", $args)) {
-            return $result;
-        }
-        
-        return null;
+        return DS::query("SELECT * FROM {$table} {$extras} {$limit}", $args);
     }
 
     /*

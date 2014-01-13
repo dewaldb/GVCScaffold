@@ -29,6 +29,7 @@ class DS {
         DS::$connections[$database]["database"] = $database;
         DS::$connections[$database]["connection"] = $dbh;
         DS::$connections[$database]["type"] = $type;
+        DS::$connections[$database]["server"] = $host;
         
         if(DS::$default_database=="") {
             DS::$default_database = $database;
@@ -48,6 +49,13 @@ class DS {
             $database = DS::$default_database;
         }
         return DS::$connections[$database]["connection"];
+    }
+    
+    static function getInfo($database="") {
+        if($database=="") {
+            $database = DS::$default_database;
+        }
+        return array(DS::$connections[$database]["database"],DS::$connections[$database]["server"]);
     }
     
     static function close() {

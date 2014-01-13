@@ -45,7 +45,7 @@ class Forms {
                 Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);
             } else if(stripos($value["Type"],"timestamp")!==false || stripos($value["Type"],"date")===0 || stripos($value["Type"],"datetime")===0) {
                 // datepicker
-                Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);
+                Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : ($value["Default"] == "CURRENT_TIMESTAMP" ? date("Y-m-d H:i:s") : $value["Default"]));
             } else if(stripos($value["Type"],"image")===0) {
                 // image upload
                 Forms::$form_state[$form_name][$key] = ($fieldsData ? $fieldsData[$key] : $value["Default"]);

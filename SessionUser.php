@@ -14,9 +14,15 @@ class SessionUser {
         ini_set('session.use_only_cookies', 1); // Forces sessions to only use cookies.
         $cookieParams = session_get_cookie_params(); // Gets current cookies params.
         session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
-        session_name($session_name); // Sets the session name to the one set above.
+        //session_name($session_name); // Sets the session name to the one set above.
         session_start(); // Start the php session
-        //session_regenerate_id(true); // regenerated the session, delete the old one.
+        
+        unset($_SESSION['regenerated']);
+        if(isset($_SESSION['regen'])) {
+            session_regenerate_id(true); // regenerated the session, delete the old one.
+            unset($_SESSION['regen']);
+            $_SESSION['regenerated'] = "YES";
+        }
         
         $_SESSION["call"] = (isset($_SESSION["call"]) ? $_SESSION["call"] : 0)+1;
         
@@ -42,10 +48,8 @@ class SessionUser {
                 return false;
             } else {
                 if($db_password == $password) { // Check if the password in the database matches the password the user submitted.
-                    // Destroy session
-                    session_destroy();
-                    session_start(); // Start the php session
-                    session_regenerate_id(true); // regenerated the session, delete the old one.
+                    //session_start(); // Start the php session
+                    //session_regenerate_id(true); // regenerated the session, delete the old one.
                     
                     // Password is correct!
                     $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user.
@@ -56,6 +60,7 @@ class SessionUser {
                     $username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username); // XSS protection as we might print this value
                     $_SESSION['username'] = $username;
                     $_SESSION['login_string'] = hash('sha512', $password.$ip_address.$user_browser);
+                    $_SESSION['regen'] = true;
                     // Login successful.
                     return true;
                 } else {

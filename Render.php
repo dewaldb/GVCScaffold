@@ -461,7 +461,7 @@ class Render {
     /* 
      * Requires bootstrap-datepicker.js and .css
      */
-    static function inputDatepickerInline($form_name,$id,$label,$value,$invalid,$required,$class='',$readonly=false,$format='yy-m-d') {
+    static function inputDatepickerInline($form_name,$id,$label,$value,$invalid,$required,$class='',$readonly=false,$format='yyyy-mm-dd hh:ii:ss') {
         return Template::load(
             "webcontent/render/fields/datepicker_inline.php",
             array(
@@ -478,7 +478,7 @@ class Render {
         );
     }
     
-    static function inputDatepicker($form_name,$id,$label,$value,$invalid,$required,$class='',$readonly=false,$format='yyyy-m-d') {
+    static function inputDatepicker($form_name,$id,$label,$value,$invalid,$required,$class='',$readonly=false,$format='yyyy-mm-dd hh:ii:ss') {
         return Template::load(
             "webcontent/render/fields/datepicker.php",
             array(

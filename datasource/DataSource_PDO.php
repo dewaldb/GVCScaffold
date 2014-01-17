@@ -265,7 +265,10 @@ class DS {
                 unset($fieldData[$key]);
             }
             if(stripos($fields[$key]['Null'],'no') !== false && stripos($fields[$key]['Type'],'int')!==false && ($value==="" || ((is_array($value) && !count($value)) || (!is_array($value) && $value=="" )))) {
-                $fieldData[$key]=0;
+                $fieldData[$key] = 0;
+            }
+            if(stripos($fields[$key]['Null'],'no') === false && (stripos($fields[$key]['Type'],'timestamp')!==false || stripos($fields[$key]['Type'],'datetime')!==false) && $value==="") {
+                $fieldData[$key] = null;
             }
         }
         
@@ -290,7 +293,7 @@ class DS {
                 $value = implode(",",$value);
             }
             
-            $valuesString.= DS::escape($value);
+            $valuesString.= ($value === null ? 'null' : DS::escape($value));
         }
         $query.= " VALUES($valuesString)";
         
@@ -319,6 +322,9 @@ class DS {
             if(strcasecmp($fields[$key]['Null'],'no')===0 && strcasecmp($fields[$key]['Type'],'int')===0 && ($value==="" || ((is_array($value) && !count($value)) || (!is_array($value) && $value=="" )))) {
                 $fieldData[$key]=0;
             }
+            if(stripos($fields[$key]['Null'],'no') === false && (stripos($fields[$key]['Type'],'timestamp')!==false || stripos($fields[$key]['Type'],'datetime')!==false) && $value==="") {
+                $fieldData[$key] = null;
+            }
         }
         
         if(!count($fieldData)) {
@@ -332,7 +338,7 @@ class DS {
                 $fieldsSets.= ", ";
             }
             
-            $fieldsSets.= "{$key}=".(is_array($value) ? DS::escape(implode(",",$value)) : DS::escape($value))."";
+            $fieldsSets.= "{$key}=".(is_array($value) ? DS::escape(implode(",",$value)) : ($value === null ? 'null' : DS::escape($value)))."";
         }
         
         $query.= $fieldsSets." {$extras}";

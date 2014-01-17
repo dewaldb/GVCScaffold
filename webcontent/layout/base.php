@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title><?php print $GLOBALS["title"]. " - ". $GLOBALS["SiteName"]; ?></title>
+        <title><?php print $GLOBALS["title"]. (!isset($_GET["print"]) ? " - ". $GLOBALS["SiteName"] : ""); ?></title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <base href="<?php print Router::getIndex(); ?>">
         
         <link rel="Stylesheet" href="theme/bootstrap/css/bootstrap.css" type="text/css" />
-        <link rel="Stylesheet" href="theme/bootstrap/css/bootstrap-datepicker.css" type="text/css" />
+        <link rel="Stylesheet" href="theme/bootstrap/css/bootstrap-datetimepicker.min.css" type="text/css" />
         <link rel="Stylesheet" href="theme/bootstrap/css/bootstrap-fileupload.css" type="text/css" />
         <link rel="Stylesheet" href="theme/bootstrap/css/bootstrap-datatables.css" type="text/css" />
         
@@ -21,10 +21,15 @@
         <script src="theme/bootstrap/js/jquery.dataTables.min.js" type="text/javascript"></script>
         <script src="theme/bootstrap/js/bootstrap-datatables.js" type="text/javascript"></script>
         <script src="theme/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="theme/bootstrap/js/bootstrap-datepicker.js" type="text/javascript"></script>
+        <script src="theme/bootstrap/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
         <script src="theme/bootstrap/js/bootstrap-fileupload.js" type="text/javascript"></script>
         
+        <script src="theme/js/script.js" type="text/javascript"></script>
+        
         <link rel="Stylesheet" href="theme/style.css" type="text/css" />
+        <?php if(isset($_GET["print"])) { ?>
+            <link rel="Stylesheet" href="theme/print.css" type="text/css" />
+        <?php } ?>
     </head>
     <body>
         <div id="wrapper">
@@ -38,9 +43,11 @@
             <?php } ?>
             <?php if(isset($body)) { ?>
                 <div id="content-wrapper">
-                    <?php print Message::display(); ?>
-                    <div class="content">
-                        <?php print $body; ?>
+                    <div class="container-fluid">
+                        <?php print Message::display(); ?>
+                        <div class="content">
+                            <?php print $body; ?>
+                        </div>
                     </div>
                 </div>
             <?php } ?>

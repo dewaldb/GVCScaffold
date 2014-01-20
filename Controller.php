@@ -41,11 +41,19 @@ class Controller {
         $this->route_name=$route_name;
     }
     
-    static function includeAll($path="controllers") {
+    static function includeAll($path="controllers",$install=false) {
         if($handle = opendir($path)) {
             while (false !== ($entry = readdir($handle))) {
-                if(stripos($entry,".php")) {
+                if(stripos($entry,".php")!==false) {
                     include($path."/".$entry);
+                    // run installer if in dev mode and installer exists
+                    if($install===true) {
+                        $class = str_replace(".php", "", $entry);
+                        $methods = get_class_methods($class);
+                        if(array_search("install", $methods)!==false) {
+                            call_user_func(array($class, "install"));
+                        }
+                    }
                 }
             }
             closedir($handle);

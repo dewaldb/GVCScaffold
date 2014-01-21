@@ -19,15 +19,19 @@
         </thead>
         <tbody>
             <?php
+            $sortColumn = 0;
             foreach($generics as $generic) { 
                 print "<tr>";
                 $count = 0;
                 $max = count($fields);
                 foreach($fields as $field=>$info) { 
+                    if($field=="createDate") {
+                        $sortColumn = $count;
+                    }
                     $count++;
                     if($count < 6 || $count == $max) {
                         print "<td>{$generic[$field]}</td>";
-                    } 
+                    }
                 }
                 print "<td>";
                 print "<a href='{$generic_name}/{$generic["id"]}/edit'>Edit</a> ";
@@ -41,8 +45,9 @@
     <script>
         $(document).ready(function() {
             $('#generic-listing').dataTable( {
-                "sDom": "<'row'<'span5'l><'span5'f>r>t<'row'<'span5'i><'span5'p>>",
-                "sPaginationType": "bootstrap"
+                "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+                "sPaginationType": "bootstrap",
+                "aaSorting": [[ <?php print $sortColumn; ?>, "desc" ]]
             } );
         } );
     </script>

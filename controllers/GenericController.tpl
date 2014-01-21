@@ -177,5 +177,79 @@ class {GenericName}Controller extends Controller {
         
         return get_defined_vars();
     }
+    
+    static public function install() {
+        $tables = DS::list_tables();
+        
+        // check if the {GenericName} table exists, if not create it.
+        if(array_search('{GenericNameNoCase}',$tables)===false) {
+            // generate the create table query
+            $query = "{CreateTableQuery}";
+
+            if(DS::query($query)) {
+                //message_add("The {GenericName} table has been created.");
+            }
+        }
+        
+        $pages = array();
+        /*
+        * {GenericNameNoCase}/%          // this is governed by the content permissions
+        * {GenericNameNoCase}/add
+        * {GenericNameNoCase}/listing
+        */
+
+        // add {GenericName} page permissions
+        $pages[] = array(
+            'name'=>'%',
+            'category'=>'{GenericNameNoCase}',
+            'subcat'=>'pages',
+            'ptype'=>2,
+            'pview'=>'admin');
+        $pages[] = array(
+            'name'=>'add',
+            'category'=>'{GenericNameNoCase}',
+            'subcat'=>'pages',
+            'ptype'=>2,
+            'pview'=>'admin');
+        $pages[] = array(
+            'name'=>'listing',
+            'category'=>'{GenericNameNoCase}',
+            'subcat'=>'pages',
+            'ptype'=>2,
+            'pview'=>'admin');
+        
+        foreach($pages as $key=>$fieldData) {
+            Permissions::set($fieldData);
+        }
+
+        // add {GenericName} content permissions
+        $content = array();
+        $content[] = array(
+            'name'=>'{GenericNameNoCase}',
+            'category'=>'{GenericNameNoCase}',
+            'subcat'=>'content',
+            'ptype'=>0,
+            'pview'=>'admin',
+            'pedit'=>'admin',
+            'padd'=>'admin',
+            'pdel'=>'admin');
+        foreach($content as $key=>$fieldData) {
+            Permissions::set($fieldData);
+        }
+
+        // Add field specific permissions.
+        // This is here as an example.
+        /*$fields = array();
+        $fields[] = array(
+            'name'=>'roles', //field name
+            'category'=>'user',
+            'subcat'=>'fields',
+            'ptype'=>1,
+            'pview'=>array('authenticated'), // if authenticated you may view
+            'pedit'=>'admin'); // only admin may edit
+        foreach($fields as $key=>$fieldData) {
+            Permissions::set($fieldData);
+        }*/
+    }
 }
 ?>

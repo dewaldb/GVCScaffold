@@ -20,7 +20,7 @@ $GLOBALS["SiteEmail"] = "admin@sitename.com";
 
 DS::connect("localhost","root","root","test");
 
-Controller::includeAll();
+Controller::includeAll("controllers",false);
 Forms::setUploadPath("uploads");
 
 $router->setWebContentFolder("webcontent");

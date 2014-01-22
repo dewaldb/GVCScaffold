@@ -18,6 +18,8 @@ $_GET["dev"] = true;
 $GLOBALS["SiteName"] = "SiteName";
 $GLOBALS["SiteEmail"] = "admin@sitename.com";
 
+DS::connect("localhost","root","root","test");
+
 Controller::includeAll();
 Forms::setUploadPath("uploads");
 
@@ -26,19 +28,8 @@ $router->loadAll();
 $router->set("user","UserController",null,array());
 $router->setDefaultRoute("home");
 
-DS::connect("localhost","root","root","test");
-
-if($_GET["dev"]) {
-    Permissions::install();
-    SessionUser::install();
-}
-
 Permissions::load();
 SessionUser::start(DS::get());
-
-/* ADDED ROUTES
-users
-*/
 
 $router->run();
 ?>

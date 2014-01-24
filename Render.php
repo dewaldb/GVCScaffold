@@ -73,8 +73,8 @@ class Render {
         
         foreach($fields as $field=>$value) {
             $permission = "edit"; // if no permissions are set allow edit
-            if(isset($value["Permissions"]["view"])) { $permission = (SessionUser::isValidUser($value["Permissions"]["view"]) ? "view" : "none"); }
-            if(isset($value["Permissions"]["edit"])) { $permission = (SessionUser::isValidUser($value["Permissions"]["edit"]) ? "edit" : $permission); }
+            if(isset($value["Permissions"]["view"])) { $permission = (SessionUser::hasRoles($value["Permissions"]["view"]) ? "view" : "none"); }
+            if(isset($value["Permissions"]["edit"])) { $permission = (SessionUser::hasRoles($value["Permissions"]["edit"]) ? "edit" : $permission); }
             
             if($permission=="none") {continue;}
             

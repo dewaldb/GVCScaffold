@@ -55,6 +55,13 @@ class {GenericName}Controller extends Controller {
         //  )
         {FieldSpecificSettings}
         
+        // apply field permissions if they exist
+        foreach($fields as $name=>$val) {
+            if(isset($this->permissions["fields"][$name])) {
+                $fields[$name]["Permissions"] = $this->permissions["fields"][$name];
+            }
+        }
+        
         $generic = DS::select($this->table_name, "WHERE id=?i", $params[1]);
         $generic = (count($generic) ? $generic[0] : null); // We only want to use the first result.
         
@@ -87,6 +94,13 @@ class {GenericName}Controller extends Controller {
         //      )
         //  )
         {FieldSpecificSettings}
+        
+        // apply field permissions if they exist
+        foreach($fields as $name=>$val) {
+            if(isset($this->permissions["fields"][$name])) {
+                $fields[$name]["Permissions"] = $this->permissions["fields"][$name];
+            }
+        }
         
         Forms::init($form_name, $fields);
         $updated_generic = Forms::validate($form_name, $fields);

@@ -17,6 +17,7 @@ class SessionUser {
         //session_name($session_name); // Sets the session name to the one set above.
         session_start(); // Start the php session
         
+        // security flaw.
         unset($_SESSION['regenerated']);
         if(isset($_SESSION['regen'])) {
             session_regenerate_id(true); // regenerated the session, delete the old one.
@@ -32,11 +33,14 @@ class SessionUser {
     static function login($email, $password) {
         // Using prepared Statements means that SQL injection is not possible.
         
-        if(count($result = DS::query("SELECT id, email, password, salt FROM users WHERE email = ?s LIMIT 1",$email))) {
+        if(count($result = DS::query("SELECT * FROM users WHERE email = ?s LIMIT 1",$email))) {
             $user_id = $result[0]["id"];
-            $username = $result[0]["email"];
+            $user = $result[0];
             $db_password = $result[0]["password"];
             $salt = $result[0]["salt"];
+            
+            unset($user["password"]);
+            unset($user["salt"]);
             
             $password = hash('sha512', $password.$salt); // hash the password with the unique salt.
             
@@ -57,8 +61,8 @@ class SessionUser {
 
                     $user_id = preg_replace("/[^0-9]+/", "", $user_id); // XSS protection as we might print this value
                     $_SESSION['user_id'] = $user_id;
-                    $username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username); // XSS protection as we might print this value
-                    $_SESSION['username'] = $username;
+                    //$username = preg_replace("/[^a-zA-Z0-9_\-]+/", "", $username); // XSS protection as we might print this value
+                    $_SESSION['user'] = $user;
                     $_SESSION['login_string'] = hash('sha512', $password.$ip_address.$user_browser);
                     $_SESSION['regen'] = true;
                     // Login successful.
@@ -91,10 +95,10 @@ class SessionUser {
     static function login_check() {
         SessionUser::$checked_login = true;
         // Check if all session variables are set
-        if(isset($_SESSION['user_id'], $_SESSION['username'], $_SESSION['login_string'])) {
+        if(isset($_SESSION['user_id'], $_SESSION['user'], $_SESSION['login_string'])) {
             $user_id = $_SESSION['user_id'];
             $login_string = $_SESSION['login_string'];
-            $username = $_SESSION['username'];
+            $user = $_SESSION['user'];
             $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user. 
             $user_browser = $_SERVER['HTTP_USER_AGENT']; // Get the user-agent string of the user.
             
@@ -222,6 +226,7 @@ class SessionUser {
             // generate the create table query
             $query = "CREATE TABLE users (";
             $query.= "id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, ";
+            $query.= "name VARCHAR(128) NOT NULL, ";
             $query.= "email VARCHAR(128) NOT NULL, ";
             $query.= "password VARCHAR(512) NOT NULL, ";
             $query.= "salt VARCHAR(16) NOT NULL, ";

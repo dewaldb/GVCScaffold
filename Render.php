@@ -500,7 +500,7 @@ class Render {
      */
     static function inputImageInline($form_name,$id,$label,$value,$invalid,$required,$class='',$readonly=false) {
         return Template::load(
-            "webcontent/render/fields/datepicker_inline.php",
+            "webcontent/render/fields/image_inline.php",
             array(
                 "form_name"=>$form_name,
                 "id"=>$id,
@@ -509,8 +509,7 @@ class Render {
                 "invalid"=>$invalid,
                 "required"=>$required,
                 "class"=>$class,
-                "readonly"=>$readonly,
-                "format"=>$format
+                "readonly"=>$readonly
             )
         );
     }

@@ -124,6 +124,10 @@ class Router {
     }
     
     static function redirect($route_name) {
+        $destination = filter_input(INPUT_GET,"destination");
+        if($destination) {
+            $route_name = $destination;
+        }
         if(stripos($route_name,"http://")===false) {
             header("Location:".Router::getIndex().$route_name);
         } else {

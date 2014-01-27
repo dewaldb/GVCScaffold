@@ -86,7 +86,7 @@ class Forms {
      * 
      * Returns null if not valid else an array of $fieldsData.
      */
-    static function validate($form_name,$fields) {
+    static function validate($form_name,$fields,$user_id=-1) {
         Forms::$form_state[$form_name]["invalid"] = array();
         
         $fieldsData = array();
@@ -94,9 +94,12 @@ class Forms {
         // validate the posted values
         foreach($fields as $field=>$value) {
             if(stripos($value["Extra"],"auto_increment")!==false) { continue; }
-            /*
-             * TODO: Add a field permission check here.
-             */
+            
+            $permission = "edit"; // if no permissions are set allow edit
+            if(isset($value["Permissions"]["view"])) { $permission = (SessionUser::hasRoles($value["Permissions"]["view"],null,$user_id) ? "view" : "none"); }
+            if(isset($value["Permissions"]["edit"])) { $permission = (SessionUser::hasRoles($value["Permissions"]["edit"],null,$user_id) ? "edit" : $permission); }
+            
+            if($permission=="none") {continue;}
             
             if(count($_POST) && !(isset($_POST["{$form_name}_submit"]) && $_POST["{$form_name}_submit"]=="Load")) {
                 Forms::processFieldPost($form_name, $field, $value); 

@@ -184,6 +184,10 @@ class SessionUser {
         return SessionUser::$roles;
     }
     
+    static public function getUserId() {
+        return (isset($_SESSION["user_id"]) ? $_SESSION["user_id"] : -1);
+    }
+
     static public function hasRoles($roles,$checkInRoles = null,$ownerId=-1) {
         if(!$checkInRoles) {
              $checkInRoles = SessionUser::getUserRoles();

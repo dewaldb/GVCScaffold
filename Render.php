@@ -68,7 +68,7 @@ class Render {
         return $body;
     }
     
-    static function formFields($form_name,$fields,$fieldsData=null,$readonly=false) {
+    static function formFields($form_name,$fields,$fieldsData=null,$readonly_all=false) {
         $output = "";
         
         foreach($fields as $field=>$value) {
@@ -78,7 +78,7 @@ class Render {
             
             if($permission=="none") {continue;}
             
-            $readonly = ($permission=="view" ? true : $readonly);
+            $readonly = ($permission=="view" ? true : $readonly_all);
             
             if(stripos($value["Extra"],"auto_increment")===false) {
                 
